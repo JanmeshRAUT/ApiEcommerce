@@ -1,0 +1,132 @@
+[
+  {
+    "id": "RULE-01-BRUTE-FORCE",
+    "name": "Brute Force Login",
+    "severity": "high",
+    "window_seconds": 300,
+    "threshold": 5,
+    "enabled": true,
+    "owasp_tag": "API2:2023 Broken Authentication",
+    "description": "5 or more failed login attempts from a single IP within 5 minutes"
+  },
+  {
+    "id": "RULE-02-CRED-STUFFING",
+    "name": "Credential Stuffing",
+    "severity": "critical",
+    "window_seconds": 300,
+    "threshold": 3,
+    "enabled": true,
+    "owasp_tag": "API2:2023 Broken Authentication",
+    "description": "Single IP attempting failed logins across 3 or more distinct user accounts"
+  },
+  {
+    "id": "RULE-03-RATE-LIMIT",
+    "name": "Rate Limit Exceeded",
+    "severity": "medium",
+    "window_seconds": 60,
+    "threshold": 60,
+    "enabled": true,
+    "owasp_tag": "API4:2023 Unrestricted Resource Consumption",
+    "description": "Single IP exceeding 60 requests per minute"
+  },
+  {
+    "id": "RULE-04-SCRAPING",
+    "name": "E-Commerce Scraping",
+    "severity": "medium",
+    "window_seconds": 60,
+    "threshold": 12,
+    "enabled": true,
+    "owasp_tag": "API4:2023 Unrestricted Resource Consumption",
+    "description": "Single IP querying more than 12 product catalog items in under 60 seconds"
+  },
+  {
+    "id": "RULE-05-IDOR-BOLA",
+    "name": "IDOR / BOLA Enumeration",
+    "severity": "critical",
+    "window_seconds": 300,
+    "threshold": 5,
+    "enabled": true,
+    "owasp_tag": "API1:2023 Broken Object Level Authorization",
+    "description": "Single client IP or user iterating over 5 or more distinct order or user identifiers"
+  },
+  {
+    "id": "RULE-06-SQL-INJECTION",
+    "name": "SQL Injection Pattern",
+    "severity": "critical",
+    "window_seconds": 60,
+    "threshold": 1,
+    "enabled": true,
+    "owasp_tag": "API8:2023 Security Misconfiguration / Injection",
+    "description": "Detection of SQL injection primitives (UNION SELECT, OR 1=1, SLEEP, syntax bypass) in path or query"
+  },
+  {
+    "id": "RULE-07-XSS",
+    "name": "Cross-Site Scripting (XSS)",
+    "severity": "high",
+    "window_seconds": 60,
+    "threshold": 1,
+    "enabled": true,
+    "owasp_tag": "API8:2023 Security Misconfiguration / Injection",
+    "description": "Detection of script injection, javascript: URI, or HTML payload handlers in URI parameters"
+  },
+  {
+    "id": "RULE-08-PATH-TRAVERSAL",
+    "name": "Path Traversal & Command Injection",
+    "severity": "critical",
+    "window_seconds": 60,
+    "threshold": 1,
+    "enabled": true,
+    "owasp_tag": "API8:2023 Security Misconfiguration / Injection",
+    "description": "Detection of directory traversal (../, ..\\) or shell execution tokens (;id, |whoami, /etc/passwd)"
+  },
+  {
+    "id": "RULE-09-BAD-BOTS",
+    "name": "Malicious Scanner / Empty Bot",
+    "severity": "high",
+    "window_seconds": 60,
+    "threshold": 1,
+    "enabled": true,
+    "owasp_tag": "API9:2023 Improper Inventory Management",
+    "description": "Known security vulnerability scanner (sqlmap, nikto, nmap, dirbuster, gobuster) or empty User-Agent"
+  },
+  {
+    "id": "RULE-10-ADMIN-ACCESS",
+    "name": "Sensitive Admin Endpoint Probe",
+    "severity": "high",
+    "window_seconds": 60,
+    "threshold": 1,
+    "enabled": true,
+    "owasp_tag": "API5:2023 Broken Function Level Authorization",
+    "description": "Unauthorized probe for administrative or debug endpoints (/admin, /actuator, /.env, /.git, /wp-admin)"
+  },
+  {
+    "id": "RULE-11-ERROR-SPIKE",
+    "name": "Application Error Spike",
+    "severity": "medium",
+    "window_seconds": 60,
+    "threshold": 8,
+    "enabled": true,
+    "owasp_tag": "API10:2023 Unsafe Consumption of APIs",
+    "description": "Sudden burst of 8 or more HTTP 4xx/5xx error responses for a single application in 1 minute"
+  },
+  {
+    "id": "RULE-12-FAKE-SIGNUPS",
+    "name": "Spam Account Registration",
+    "severity": "medium",
+    "window_seconds": 300,
+    "threshold": 4,
+    "enabled": true,
+    "owasp_tag": "API6:2023 Unrestricted Access to Sensitive Business Flows",
+    "description": "Single IP attempting 4 or more user registration requests within 5 minutes"
+  },
+  {
+    "id": "RULE-13-COUPON-ABUSE",
+    "name": "Promo / Coupon Brute-Forcing",
+    "severity": "medium",
+    "window_seconds": 300,
+    "threshold": 5,
+    "enabled": true,
+    "owasp_tag": "API6:2023 Unrestricted Access to Sensitive Business Flows",
+    "description": "Single IP testing 5 or more promotional codes or coupon validations in 5 minutes"
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "mode": "shadow",
+  "notify_on_high_critical": true,
+  "description": "Shadow Mode: detection runs in background, logs threats, never blocks live traffic",
+  "alert_webhook_url": "",
+  "alert_min_severity": "high",
+  "alert_dedup_minutes": 30,
+  "raw_traffic_retention_days": 30,
+  "feature_retention_days": 90
+}

@@ -1,0 +1,6 @@
+{
+  "name": "API Security Gatekeeper & Monitor",
+  "description": "Non-intrusive reverse proxy gatekeeper and security telemetry monitoring for e-commerce APIs.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
