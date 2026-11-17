@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Database,
   Download,
-  Sparkles,
   AlertTriangle,
   RefreshCw,
   CheckCircle2,
@@ -17,7 +16,6 @@ interface MlDataViewProps {
   apps: Array<{ id: string; name: string; environment: string }>;
   selectedAppId: string;
   authToken: string | null;
-  onDataGenerated?: () => void;
 }
 
 interface PreviewResponse {
@@ -28,7 +26,7 @@ interface PreviewResponse {
   imbalance_warning: string | null;
 }
 
-export function MlDataView({ apps, selectedAppId, authToken, onDataGenerated }: MlDataViewProps) {
+export function MlDataView({ apps, selectedAppId, authToken }: MlDataViewProps) {
   const [filterAppId, setFilterAppId] = useState<string>(selectedAppId || 'ALL');
   const [windowSize, setWindowSize] = useState<'ALL' | FeatureWindowSize>('ALL');
   const [startDate, setStartDate] = useState<string>('');
@@ -43,7 +41,6 @@ export function MlDataView({ apps, selectedAppId, authToken, onDataGenerated }: 
     imbalance_warning: null,
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -82,43 +79,6 @@ export function MlDataView({ apps, selectedAppId, authToken, onDataGenerated }: 
   useEffect(() => {
     fetchPreview();
   }, [fetchPreview]);
-
-  const handleGenerateSampleData = async () => {
-    if (!authToken) return;
-    setIsGenerating(true);
-    setStatusMessage(null);
-    try {
-      const res = await fetch('/api/v1/export/simulate-training-data', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify({ app_id: filterAppId }),
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setStatusMessage({
-          type: 'success',
-          text: data.message || 'Generated mixed normal + attack training data.',
-        });
-        await fetchPreview();
-        if (onDataGenerated) onDataGenerated();
-      } else {
-        setStatusMessage({
-          type: 'error',
-          text: data.error || 'Failed to generate sample training data.',
-        });
-      }
-    } catch (err: any) {
-      setStatusMessage({
-        type: 'error',
-        text: err?.message || 'Unable to generate training data.',
-      });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
   const handleExtractNow = async () => {
     if (!authToken) return;
@@ -218,16 +178,6 @@ export function MlDataView({ apps, selectedAppId, authToken, onDataGenerated }: 
           >
             <RefreshCw className={`w-3.5 h-3.5 text-slate-600 ${isLoading ? 'animate-spin' : ''}`} />
             <span>Refresh / Extract Now</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={handleGenerateSampleData}
-            disabled={isGenerating}
-            className="px-3.5 py-2 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
-          >
-            <Sparkles className={`w-3.5 h-3.5 text-blue-600 ${isGenerating ? 'animate-pulse' : ''}`} />
-            <span>{isGenerating ? 'Generating Samples...' : 'Generate sample training data'}</span>
           </button>
 
           <button
@@ -367,7 +317,7 @@ export function MlDataView({ apps, selectedAppId, authToken, onDataGenerated }: 
 
         {labelEntries.length === 0 ? (
           <div className="text-xs text-slate-500 py-4 text-center bg-slate-50 rounded-lg border border-dashed border-slate-200">
-            No feature rows stored yet. Click <strong>&quot;Generate sample training data&quot;</strong> above or wait for the 1-minute background extraction job.
+            No feature rows stored yet. Send real traffic from a registered application to build feature data.
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">

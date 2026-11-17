@@ -13,6 +13,8 @@ import {
   Info,
   Database,
   Trash2,
+  Flame,
+  Sparkles,
 } from 'lucide-react';
 import { PlatformSettings, ThreatSeverity, AlertHistoryEntry } from '../types/threats';
 
@@ -20,9 +22,19 @@ interface SettingsViewProps {
   authToken?: string | null;
   onSaved?: (settings: PlatformSettings) => void;
   onAlertSent?: () => void;
+  selectedAppId?: string;
+  onSimulateAttack?: () => Promise<void>;
+  onTestingDataGenerated?: () => void;
 }
 
-export function SettingsView({ authToken, onSaved, onAlertSent }: SettingsViewProps) {
+export function SettingsView({
+  authToken,
+  onSaved,
+  onAlertSent,
+  selectedAppId = 'ALL',
+  onSimulateAttack,
+  onTestingDataGenerated,
+}: SettingsViewProps) {
   const [settings, setSettings] = useState<PlatformSettings>({
     mode: 'shadow',
     notify_on_high_critical: true,
@@ -43,6 +55,8 @@ export function SettingsView({ authToken, onSaved, onAlertSent }: SettingsViewPr
     message: string;
     entry?: AlertHistoryEntry;
   } | null>(null);
+  const [isGeneratingSampleData, setIsGeneratingSampleData] = useState(false);
+  const [testingToolsMessage, setTestingToolsMessage] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadSettings() {
@@ -150,6 +164,33 @@ export function SettingsView({ authToken, onSaved, onAlertSent }: SettingsViewPr
       setCleanupMessage(err?.message || 'Cleanup failed.');
     } finally {
       setIsRunningCleanup(false);
+    }
+  };
+
+  const handleGenerateSampleData = async () => {
+    if (!authToken) return;
+    setIsGeneratingSampleData(true);
+    setTestingToolsMessage(null);
+    try {
+      const res = await fetch('/api/v1/export/simulate-training-data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ app_id: selectedAppId }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setTestingToolsMessage(data.error || 'Failed to generate sample training data.');
+        return;
+      }
+      setTestingToolsMessage(data.message || 'Generated sample training data.');
+      onTestingDataGenerated?.();
+    } catch (err: any) {
+      setTestingToolsMessage(err?.message || 'Unable to generate sample training data.');
+    } finally {
+      setIsGeneratingSampleData(false);
     }
   };
 
@@ -404,6 +445,44 @@ export function SettingsView({ authToken, onSaved, onAlertSent }: SettingsViewPr
           </div>
         </div>
       </div>
+
+      {/* TESTING TOOLS */}
+      <details className="bg-white border border-amber-200 rounded-xl overflow-hidden shadow-xs">
+        <summary className="px-5 py-4 bg-amber-50/70 flex items-center gap-2.5 cursor-pointer list-none">
+          <div className="w-8 h-8 rounded-lg bg-amber-100 border border-amber-200 flex items-center justify-center text-amber-700">
+            <Flame className="w-4 h-4" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-slate-900 tracking-tight">Testing Tools</h3>
+            <p className="text-[11px] text-amber-800 font-medium">
+              This sends FAKE traffic for testing. Do not use this if you only want real data.
+            </p>
+          </div>
+        </summary>
+        <div className="p-5 flex flex-wrap items-center gap-3 text-xs">
+          <button
+            type="button"
+            onClick={() => void onSimulateAttack?.()}
+            disabled={!onSimulateAttack}
+            className="px-3.5 py-2 font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+          >
+            <Flame className="w-3.5 h-3.5 text-rose-600" />
+            <span>Attack Simulator</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => void handleGenerateSampleData()}
+            disabled={isGeneratingSampleData || !authToken}
+            className="px-3.5 py-2 font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+          >
+            <Sparkles className={`w-3.5 h-3.5 text-blue-600 ${isGeneratingSampleData ? 'animate-pulse' : ''}`} />
+            <span>{isGeneratingSampleData ? 'Generating Samples...' : 'Generate sample training data'}</span>
+          </button>
+          {testingToolsMessage && (
+            <span className="text-[11px] font-medium text-slate-600">{testingToolsMessage}</span>
+          )}
+        </div>
+      </details>
 
       {/* SECTION 3: DATA RETENTION & CLEANUP (STEP 5) */}
       <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">

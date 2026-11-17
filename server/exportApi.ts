@@ -100,9 +100,14 @@ exportRouter.post('/simulate-training-data', (req: Request, res: Response) => {
       ? appsService.getAppById(requestedAppId)
       : appsService.getFirstActiveApp()?.app || null;
 
-  const appId = targetApp?.id || 'app_fakeshop_demo';
-  const appName = targetApp?.name || 'Fake Shop (Demo)';
-  const env = targetApp?.environment || 'dev';
+  if (!targetApp) {
+    res.status(400).json({ error: 'Register an application before generating sample training data.' });
+    return;
+  }
+
+  const appId = targetApp.id;
+  const appName = targetApp.name;
+  const env = targetApp.environment;
 
   const nowMs = Date.now();
   let totalEvents = 0;
@@ -159,6 +164,7 @@ exportRouter.post('/simulate-training-data', (req: Request, res: Response) => {
         ? crypto.createHash('sha256').update(options.userId).digest('hex').slice(0, 12)
         : undefined,
       login_result: loginResult,
+      is_synthetic: true,
       threat_rule: detection.ruleName || 'normal',
       threat_rule_id: detection.ruleId || undefined,
       label: detection.label,

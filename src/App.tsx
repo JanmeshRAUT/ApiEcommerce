@@ -33,6 +33,8 @@ import {
   Flame,
   Sliders,
   Database,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -62,6 +64,11 @@ interface RegisteredApp {
   created_at: string;
   last_seen_at: string | null;
   total_requests: number;
+  key_history: Array<{
+    old_key_prefix: string | null;
+    new_key_prefix: string;
+    rotated_at: string;
+  }>;
 }
 
 interface TrafficRecord {
@@ -177,7 +184,8 @@ export default function App() {
   // Applications & Multi-Tenant State
   const [apps, setApps] = useState<RegisteredApp[]>([]);
   const [selectedAppId, setSelectedAppId] = useState<string>('ALL');
-  const [newKeyModal, setNewKeyModal] = useState<{ appName: string; plainKey: string } | null>(null);
+  const [newKeyModal, setNewKeyModal] = useState<{ appId: string; appName: string; plainKey: string } | null>(null);
+  const [isKeyVisible, setIsKeyVisible] = useState(true);
   const [isRegisteringApp, setIsRegisteringApp] = useState(false);
   const [newAppName, setNewAppName] = useState('');
   const [newAppEnv, setNewAppEnv] = useState<'dev' | 'prod'>('dev');
@@ -203,6 +211,13 @@ export default function App() {
   // Connect Guide state
   const [guideLanguage, setGuideLanguage] = useState<'node' | 'python' | 'java' | 'php'>('node');
   const [guideSelectedAppId, setGuideSelectedAppId] = useState<string>('');
+  const [guideApiKeys, setGuideApiKeys] = useState<Record<string, string>>({});
+  const [connectionTest, setConnectionTest] = useState<{
+    appId: string;
+    status: 'testing' | 'connected' | 'not_connected';
+    message?: string;
+  } | null>(null);
+  const [connectionTestKey, setConnectionTestKey] = useState('');
 
   // Host URL for snippets
   const platformUrl = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
@@ -427,10 +442,14 @@ export default function App() {
 
       const data = await res.json();
       if (res.ok && data.plain_api_key) {
+        const nextKeys = { ...guideApiKeys, [data.app.id]: data.plain_api_key };
+        setGuideApiKeys(nextKeys);
         setNewKeyModal({
+          appId: data.app.id,
           appName: data.app.name,
           plainKey: data.plain_api_key,
         });
+        setIsKeyVisible(true);
         setNewAppName('');
         setIsRegisteringApp(false);
         await fetchApps();
@@ -450,10 +469,14 @@ export default function App() {
       const res = await fetch(`/api/apps/${app.id}/regenerate-key`, { method: 'POST' });
       const data = await res.json();
       if (res.ok && data.plain_api_key) {
+        const nextKeys = { ...guideApiKeys, [app.id]: data.plain_api_key };
+        setGuideApiKeys(nextKeys);
         setNewKeyModal({
+          appId: app.id,
           appName: app.name,
           plainKey: data.plain_api_key,
         });
+        setIsKeyVisible(true);
         await fetchApps();
       }
     } catch (err) {
@@ -527,37 +550,127 @@ export default function App() {
 
   // Selected App for Connect Guide
   const guideApp = apps.find((a) => a.id === guideSelectedAppId) || apps[0];
-  const guideApiKeyPlaceholder = guideApp ? `${guideApp.key_prefix}` : 'sk_live_YOUR_API_KEY';
+  const guideApiKey = guideApp ? guideApiKeys[guideApp.id] || '' : '';
+  const guideApiKeyPlaceholder = guideApiKey || (guideApp ? '[API key shown when this app was registered]' : 'No app selected');
+
+  const handleTestConnection = async () => {
+    if (!guideApp) return;
+    const apiKey = guideApiKeys[guideApp.id] || connectionTestKey.trim();
+    if (!apiKey) {
+      setConnectionTest({
+        appId: guideApp.id,
+        status: 'not_connected',
+        message: 'This key is not available in this browser. Regenerate the app key, then copy it here again.',
+      });
+      return;
+    }
+
+    setConnectionTest({ appId: guideApp.id, status: 'testing' });
+    try {
+      const response = await fetch('/api/v1/ingest', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': apiKey,
+        },
+        body: JSON.stringify({
+          timestamp: new Date().toISOString(),
+          method: 'GET',
+          path: '/_gatekeeper_connection_test',
+          status: 200,
+          response_time_ms: 1,
+          client_ip: '127.0.0.1',
+          user_agent: 'Gatekeeper-Connect-Guide',
+        }),
+      });
+      if (!response.ok) throw new Error('The dashboard rejected the test event.');
+
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      const appsResponse = await fetch('/api/apps');
+      const appsData = await appsResponse.json();
+      const updatedApp = (appsData.apps || []).find((app: RegisteredApp) => app.id === guideApp.id);
+      if (updatedApp?.total_requests > guideApp.total_requests) {
+        setConnectionTest({
+          appId: guideApp.id,
+          status: 'connected',
+          message: 'Connected — we received your test event',
+        });
+      } else {
+        throw new Error('The test event was not visible after waiting.');
+      }
+    } catch {
+      setConnectionTest({
+        appId: guideApp.id,
+        status: 'not_connected',
+        message: "Not connected yet — we haven't received anything from this app",
+      });
+    } finally {
+      setConnectionTestKey('');
+    }
+  };
+
+  const closeKeyDialog = () => {
+    if (newKeyModal) {
+      setGuideApiKeys((current) => {
+        const next = { ...current };
+        delete next[newKeyModal.appId];
+        return next;
+      });
+    }
+    setNewKeyModal(null);
+    setIsKeyVisible(true);
+    setCopiedKey(false);
+  };
 
   // Code Snippets for Connect Guide
   const snippets = {
-    node: `// Node.js Express Middleware (Zero Latency, Background Batching)
-// npm install node-fetch (or use Node 18+ built-in fetch)
+    node: `// Node.js Express Middleware (Node 18+; sends metadata in the background)
+// Install first: npm install dotenv
 
-const GATEKEEPER_URL = '${platformUrl}/api/v1/ingest';
-const API_KEY = '${guideApiKeyPlaceholder}';
+import 'dotenv/config';
 
 let eventQueue = [];
 let flushTimer = null;
 
+function getGatekeeperUrl() {
+  const rawUrl = (process.env.MONITOR_URL || '').replace(/\/+$/, '');
+  const normalized = rawUrl.replace('//localhost:', '//127.0.0.1:');
+  return \`\${normalized || rawUrl}/api/v1/ingest\`;
+}
+
 function flushQueue() {
   if (eventQueue.length === 0) return;
+  const apiKey = process.env.MONITOR_API_KEY;
+  const monitorUrl = process.env.MONITOR_URL;
+  if (!apiKey || !monitorUrl) {
+    eventQueue = [];
+    return;
+  }
   const batch = eventQueue.splice(0, 100);
 
   // Send in background with short 800ms timeout
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 800);
 
-  fetch(GATEKEEPER_URL, {
+  fetch(getGatekeeperUrl(), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-API-Key': API_KEY,
+      'X-API-Key': apiKey,
     },
     body: JSON.stringify(batch),
     signal: controller.signal,
   })
-    .catch(() => {}) // Never break or slow the app if platform is unreachable
+    .then((res) => {
+      if (!res.ok) {
+        console.warn(\`[security-reporter] Ingest failed: HTTP \${res.status}\`);
+      }
+    })
+    .catch((err) => {
+      if (err.name !== 'AbortError') {
+        console.warn('[security-reporter] Ingest network error:', err.message || err);
+      }
+    })
     .finally(() => clearTimeout(timeoutId));
 }
 
@@ -605,8 +718,10 @@ import httpx
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 
-GATEKEEPER_URL = "${platformUrl}/api/v1/ingest"
-API_KEY = "${guideApiKeyPlaceholder}"
+import os
+
+GATEKEEPER_URL = os.environ["MONITOR_URL"] + "/api/v1/ingest"
+API_KEY = os.environ["MONITOR_API_KEY"]
 
 event_queue = []
 
@@ -649,11 +764,14 @@ class SecurityMonitorMiddleware(BaseHTTPMiddleware):
             asyncio.create_task(flush_batch())
 
         return response`,
-    java: `// Java Spring Boot Servlet Filter (Non-blocking Scheduled Ingest)
-package com.example.security;
+    java: `// Java Spring Boot 3 / Spring MVC filter
+// File: src/main/java/com/yourcompany/security/SecurityMonitorFilter.java
+package com.yourcompany.security;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PreDestroy;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import java.io.IOException;
@@ -666,19 +784,27 @@ import java.util.concurrent.*;
 @Component
 public class SecurityMonitorFilter extends OncePerRequestFilter {
 
-    private static final String GATEKEEPER_URL = "${platformUrl}/api/v1/ingest";
-    private static final String API_KEY = "${guideApiKeyPlaceholder}";
+    private final String gatekeeperUrl = System.getenv("MONITOR_URL") + "/api/v1/ingest";
+    private static final String API_KEY = System.getenv("MONITOR_API_KEY");
 
     private final Queue<Map<String, Object>> eventQueue = new ConcurrentLinkedQueue<>();
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofMillis(800))
             .build();
+    private final ObjectMapper objectMapper;
+    private final ScheduledExecutorService scheduler =
+            Executors.newSingleThreadScheduledExecutor();
 
-    public SecurityMonitorFilter() {
-        // Background batch dispatcher runs every 2 seconds
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
+    public SecurityMonitorFilter(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+        scheduler.scheduleAtFixedRate(
             this::flushEvents, 2, 2, TimeUnit.SECONDS
         );
+    }
+
+    @PreDestroy
+    public void stopReporter() {
+        scheduler.shutdownNow();
     }
 
     @Override
@@ -714,14 +840,29 @@ public class SecurityMonitorFilter extends OncePerRequestFilter {
         while (!eventQueue.isEmpty() && batch.size() < 100) {
             batch.add(eventQueue.poll());
         }
-        // Send JSON batch to GATEKEEPER_URL with X-API-Key header (async)
+        try {
+            String json = objectMapper.writeValueAsString(batch);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(gatekeeperUrl))
+                    .timeout(Duration.ofMillis(800))
+                    .header("Content-Type", "application/json")
+                    .header("X-API-Key", API_KEY)
+                    .POST(HttpRequest.BodyPublishers.ofString(json))
+                    .build();
+            httpClient.sendAsync(request, HttpResponse.BodyHandlers.discarding())
+                    .exceptionally(error -> null);
+        } catch (Exception ignored) {
+            // Monitoring must never affect the application.
+        }
     }
 }`,
     php: `<?php
 // PHP Ingest Integration (FastCGI Finish Request / cURL non-blocking)
 
-define('GATEKEEPER_URL', '${platformUrl}/api/v1/ingest');
-define('API_KEY', '${guideApiKeyPlaceholder}');
+$monitorUrl = getenv('MONITOR_URL');
+$apiKey = getenv('MONITOR_API_KEY');
+define('GATEKEEPER_URL', rtrim($monitorUrl, '/') . '/api/v1/ingest');
+define('API_KEY', $apiKey);
 
 register_shutdown_function(function() {
     $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -757,6 +898,61 @@ register_shutdown_function(function() {
 });
 ?>`,
   };
+
+  const guideSetup = {
+    node: {
+      file: 'security-reporter.js in the same folder as your server.js or app.js',
+      main: "In server.js/app.js near the top: import { securityMonitorMiddleware } from './security-reporter.js'; Then after creating your Express app: app.use(securityMonitorMiddleware);",
+      install: 'Run: npm install dotenv (Node 18 or newer is required for fetch).',
+      env: `MONITOR_URL=http://127.0.0.1:3000
+MONITOR_API_KEY=${guideApiKeyPlaceholder}`,
+      note: 'This reports request metadata only; it never reads request bodies, passwords, or query values.',
+    },
+    python: {
+      file: 'security_reporter.py in the same folder as your main.py or app.py',
+      main: 'In main.py/app.py after creating the app: app.add_middleware(SecurityMonitorMiddleware)',
+      install: 'Run: pip install httpx starlette python-dotenv.',
+      env: `MONITOR_URL=${platformUrl}
+MONITOR_API_KEY=${guideApiKeyPlaceholder}`,
+      note: 'This reports request metadata only; it never reads request bodies, passwords, or query values.',
+    },
+    java: {
+      file: 'src/main/java/com/yourcompany/security/SecurityMonitorFilter.java',
+      main: 'The @Component annotation turns the filter on automatically. Add the file to your Spring Boot source package. In src/main/resources/application.properties, add: spring.config.import=optional:file:.env[.properties]',
+      install: 'Use Spring Boot 3 (Java 11+). Your existing spring-boot-starter-web already provides ObjectMapper.',
+      env: `MONITOR_URL=${platformUrl}
+MONITOR_API_KEY=${guideApiKeyPlaceholder}`,
+      note: 'This reports request metadata only; it never reads request bodies, passwords, or query values.',
+    },
+    php: {
+      file: 'security-reporter.php in the same folder as your front controller (often public/index.php)',
+      main: 'In public/index.php near the top, add: require_once __DIR__ . \'/security-reporter.php\';',
+      install: 'Enable the PHP cURL extension. No Composer package is required.',
+      env: `MONITOR_URL=${platformUrl}
+MONITOR_API_KEY=${guideApiKeyPlaceholder}`,
+      note: 'This reports request metadata only; it never reads request bodies, passwords, or query values.',
+    },
+  } as const;
+  const currentGuideSetup = guideSetup[guideLanguage];
+  const copyAllGuideContent = [
+    `Connect ${guideApp?.name || 'this app'} to the API Security Gatekeeper`,
+    '',
+    'Steps:',
+    '1. Copy your API key below.',
+    '2. Open your app\'s project folder.',
+    `3. Create or open ${currentGuideSetup.file}.`,
+    '4. Paste the code and your key.',
+    '5. Restart your app and click "Test connection" here.',
+    '',
+    `File: ${currentGuideSetup.file}`,
+    `Install: ${currentGuideSetup.install}`,
+    `Main server file: ${currentGuideSetup.main}`,
+    '.env:',
+    currentGuideSetup.env,
+    currentGuideSetup.note,
+    '',
+    snippets[guideLanguage],
+  ].join('\n');
 
   // ----------------------------------------------------
   // LOGIN SCREEN (If not authenticated)
@@ -983,17 +1179,6 @@ register_shutdown_function(function() {
             <span className="font-mono tabular-nums">{autoRefresh ? `5s` : 'Paused'}</span>
           </button>
 
-          {/* Attack Simulator Button */}
-          <button
-            onClick={handleSimulateAttack}
-            disabled={isSimulatingAttack}
-            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 active:bg-rose-200 border border-rose-200 rounded-lg transition-all shadow-xs cursor-pointer disabled:opacity-50 whitespace-nowrap"
-            title="Fires 5 sample attacks (brute force, SQLi, scraping, fake signups, path traversal)"
-          >
-            <Flame className={`w-3.5 h-3.5 text-rose-600 ${isSimulatingAttack ? 'animate-spin' : ''}`} />
-            <span>{isSimulatingAttack ? 'Simulating Attacks...' : 'Attack Simulator'}</span>
-          </button>
-
           {/* User Profile & Logout */}
           <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
             <span className="text-xs font-medium text-slate-700 hidden sm:inline">{currentUser}</span>
@@ -1057,6 +1242,13 @@ register_shutdown_function(function() {
               </div>
             </div>
 
+            {(stats?.total_requests ?? 0) === 0 ? (
+              <div className="bg-white border border-slate-200 rounded-xl p-12 text-center shadow-xs">
+                <Activity className="w-10 h-10 mx-auto text-blue-600 mb-3" />
+                <p className="text-sm font-semibold text-slate-800">No traffic received yet</p>
+              </div>
+            ) : (
+            <>
             {/* ROW 1: TOP 5 METRIC CARDS (INCLUDING OPEN THREATS BY SEVERITY) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               {/* Card 1: Total Requests */}
@@ -1515,9 +1707,9 @@ register_shutdown_function(function() {
                             <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
                               <Activity className="w-5 h-5" />
                             </div>
-                            <div className="font-semibold text-slate-800">No requests match criteria</div>
+                            <div className="font-semibold text-slate-800">No traffic received yet</div>
                             <p className="text-xs text-slate-500">
-                              Click &quot;Send Test Traffic&quot; or &quot;Attack Simulator&quot; to generate incoming events.
+                              Register an app and send real traffic to see requests here.
                             </p>
                           </div>
                         </td>
@@ -1552,7 +1744,7 @@ register_shutdown_function(function() {
                             {/* App Name */}
                             <td className="py-2.5 px-3 whitespace-nowrap">
                               <span className="font-sans text-[11px] font-semibold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded">
-                                {r.app_name || 'Fake Shop'}
+                                {r.app_name || 'Unknown application'}
                               </span>
                             </td>
 
@@ -1648,6 +1840,8 @@ register_shutdown_function(function() {
                 </table>
               </div>
             </div>
+            </>
+            )}
           </>
         )}
 
@@ -1696,6 +1890,9 @@ register_shutdown_function(function() {
 
             {/* Applications Table */}
             <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+              <div className="px-4 py-3 bg-blue-50 border-b border-blue-100 text-xs text-blue-900">
+                For your safety, we only store a scrambled version of your key. We can never show it to you again after you close this box — if you lose it, regenerate instead.
+              </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
@@ -1713,7 +1910,7 @@ register_shutdown_function(function() {
                     {apps.length === 0 ? (
                       <tr>
                         <td colSpan={7} className="py-8 text-center text-slate-400">
-                          No applications registered yet. Click &quot;Register Application&quot; to add one.
+                          No apps registered yet. Click &quot;Register app&quot; to connect your first real app.
                         </td>
                       </tr>
                     ) : (
@@ -1737,7 +1934,19 @@ register_shutdown_function(function() {
                           </td>
 
                           <td className="py-3 px-4 font-mono text-slate-600 text-[11px]">
-                            {app.key_prefix}
+                            <div>{app.key_prefix}</div>
+                            {app.key_history.length > 0 && (
+                              <details className="mt-1 font-sans">
+                                <summary className="text-[10px] text-blue-600 cursor-pointer">Key history ({app.key_history.length})</summary>
+                                <div className="mt-1 space-y-1 text-[10px] text-slate-500">
+                                  {app.key_history.map((rotation) => (
+                                    <div key={`${rotation.rotated_at}-${rotation.new_key_prefix}`}>
+                                      {rotation.old_key_prefix} → {rotation.new_key_prefix} · {new Date(rotation.rotated_at).toLocaleString()}
+                                    </div>
+                                  ))}
+                                </div>
+                              </details>
+                            )}
                           </td>
 
                           <td className="py-3 px-4">
@@ -1813,19 +2022,20 @@ register_shutdown_function(function() {
             <div>
               <h2 className="text-lg font-bold text-slate-900 tracking-tight">Connect Any Backend (Integration Guide)</h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                Copy and paste these pre-configured background middleware snippets into your Node, Python, Java, or PHP apps.
+                Follow the steps for one registered app and one language at a time. The reporter sends request metadata in the background.
               </p>
             </div>
 
-            {/* Application Pre-filler Dropdown */}
+            {/* Application selector and setup steps */}
             <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-xs">
               <div className="flex items-center gap-3">
-                <span className="text-xs font-semibold text-slate-700">Customize snippet for application:</span>
+                <span className="text-xs font-semibold text-slate-700">App:</span>
                 <select
                   value={guideSelectedAppId}
                   onChange={(e) => setGuideSelectedAppId(e.target.value)}
                   className="px-3 py-1.5 text-xs font-medium bg-slate-50 border border-slate-300 rounded-lg text-slate-800 focus:border-blue-600 focus:outline-none cursor-pointer"
                 >
+                  {apps.length === 0 && <option value="">No registered apps</option>}
                   {apps.map((app) => (
                     <option key={app.id} value={app.id}>
                       {app.name} ({app.environment})
@@ -1834,12 +2044,78 @@ register_shutdown_function(function() {
                 </select>
               </div>
 
-              <div className="text-xs text-slate-500">
-                Snippets automatically fill <code className="font-mono text-blue-700 font-semibold">{platformUrl}/api/v1/ingest</code>
+              {guideApp && (
+                <div className="flex items-center gap-2">
+                  {!guideApiKeys[guideApp.id] && (
+                    <input
+                      type="password"
+                      value={connectionTestKey}
+                      onChange={(e) => setConnectionTestKey(e.target.value)}
+                      placeholder="Paste key for this test only"
+                      className="w-48 px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => void handleTestConnection()}
+                    disabled={connectionTest?.status === 'testing'}
+                    className="px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg disabled:opacity-50 cursor-pointer"
+                  >
+                    {connectionTest?.appId === guideApp.id && connectionTest.status === 'testing' ? 'Testing...' : 'Test connection'}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {!guideApp ? (
+              <div className="bg-white border border-slate-200 rounded-xl p-10 text-center text-sm text-slate-600 shadow-xs">
+                Register an application first to get a real API key and connection instructions.
+              </div>
+            ) : (
+            <>
+            {guideApp.total_requests === 0 && (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-xs text-amber-900 font-medium">
+                This app hasn't sent any traffic yet. Follow the steps below to connect it.
+              </div>
+            )}
+
+            {connectionTest?.appId === guideApp.id && connectionTest.status === 'connected' && (
+              <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-xs text-emerald-800 font-semibold">
+                {connectionTest.message}
+              </div>
+            )}
+            {connectionTest?.appId === guideApp.id && connectionTest.status === 'not_connected' && (
+              <div className="bg-rose-50 border border-rose-200 rounded-xl px-4 py-3 text-xs text-rose-800">
+                <p className="font-semibold">{connectionTest.message}</p>
+                <ul className="list-disc ml-5 mt-1 space-y-0.5">
+                  <li>Is MONITOR_URL correct?</li>
+                  <li>Did you restart your app after adding the .env values?</li>
+                  <li>Is the key copied in full?</li>
+                </ul>
+              </div>
+            )}
+
+            <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
+              <h3 className="text-sm font-bold text-slate-900 mb-3">Setup steps</h3>
+              <ol className="grid gap-2 text-xs text-slate-700">
+                <li><strong>Step 1:</strong> Copy your API key below.</li>
+                <li><strong>Step 2:</strong> Open your app's project folder.</li>
+                <li><strong>Step 3:</strong> Create or open the file shown below for your language.</li>
+                <li><strong>Step 4:</strong> Paste the code and your key.</li>
+                <li><strong>Step 5:</strong> Restart your app and click "Test connection" here.</li>
+              </ol>
+              <div className="mt-4 p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                <div className="text-[11px] font-bold text-slate-700 mb-1">Your API key</div>
+                <code className="text-xs font-mono text-blue-700 break-all">
+                  {guideApiKey || 'Key unavailable in this browser — regenerate this app key to display it again.'}
+                </code>
+                <p className="text-[11px] text-slate-500 mt-2">
+                  For your safety, we only store a scrambled version of your key. We can never show it to you again after you close this box — if you lose it, regenerate instead.
+                </p>
               </div>
             </div>
 
-            {/* Language Tabs & Snippet Box */}
+            {/* Language Tabs & Instructions */}
             <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs flex flex-col">
               <div className="px-5 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
                 {/* Language Switcher */}
@@ -1867,36 +2143,51 @@ register_shutdown_function(function() {
                 {/* Copy Snippet Button */}
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText(snippets[guideLanguage]);
+                    navigator.clipboard.writeText(copyAllGuideContent);
                     setCopiedKey(true);
                     setTimeout(() => setCopiedKey(false), 2000);
                   }}
                   className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-100 border border-slate-300 rounded-lg shadow-xs cursor-pointer transition-colors"
                 >
                   {copiedKey ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copiedKey ? 'Copied Snippet!' : 'Copy Code'}</span>
+                  <span>{copiedKey ? 'Copied all!' : 'Copy all'}</span>
                 </button>
               </div>
 
-              {/* Safety Rules Reminder Banner */}
-              <div className="px-5 py-2.5 bg-blue-50/70 border-b border-blue-100 text-xs text-blue-900 flex flex-wrap items-center gap-x-6 gap-y-1">
-                <span className="flex items-center gap-1 text-blue-950 font-semibold">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" /> Safe by Design:
-                </span>
-                <span>• Dispatched in background batches</span>
-                <span>• Short 800ms timeout</span>
-                <span>• Drops events if dashboard is down (zero impact on users)</span>
-                <span>• Skips static files & /health</span>
-                <span>• Only sends metadata, zero bodies or sensitive headers</span>
+              <div className="p-5 grid gap-4 text-xs">
+                <div>
+                  <div className="font-bold text-slate-800 mb-1">Create this file</div>
+                  <code className="font-mono text-blue-700">{currentGuideSetup.file}</code>
+                </div>
+                <div>
+                  <div className="font-bold text-slate-800 mb-1">Install what it needs</div>
+                  <p className="text-slate-600">{currentGuideSetup.install}</p>
+                </div>
+                <div>
+                  <div className="font-bold text-slate-800 mb-1">Turn it on in your main server file</div>
+                  <p className="text-slate-600">{currentGuideSetup.main}</p>
+                </div>
+                <div>
+                  <div className="font-bold text-slate-800 mb-1">Set these values in .env</div>
+                  <pre className="p-3 bg-slate-100 rounded-lg font-mono text-slate-800 overflow-x-auto">{currentGuideSetup.env}</pre>
+                </div>
+                <div className="p-3 bg-blue-50 border border-blue-100 rounded-lg text-blue-900">
+                  {currentGuideSetup.note}
+                </div>
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-900">
+                  <strong>Important:</strong> If your Node app runs on another computer, do not use <code className="font-mono">http://localhost:3000</code>. Set <code className="font-mono">MONITOR_URL</code> to this dashboard's reachable LAN or public URL, and allow inbound access to port 3000.
+                </div>
               </div>
 
-              {/* Code Pre Box */}
+              {/* Code block */}
               <div className="p-4 bg-slate-950 overflow-x-auto">
                 <pre className="text-xs font-mono text-slate-100 leading-relaxed">
                   {snippets[guideLanguage]}
                 </pre>
               </div>
             </div>
+            </>
+            )}
           </div>
         )}
 
@@ -1908,11 +2199,6 @@ register_shutdown_function(function() {
             apps={apps}
             selectedAppId={selectedAppId}
             authToken={authToken}
-            onDataGenerated={() => {
-              fetchStats();
-              fetchRecords();
-              fetchApps();
-            }}
           />
         )}
 
@@ -1922,6 +2208,13 @@ register_shutdown_function(function() {
         {activeTab === 'settings' && (
           <SettingsView
             authToken={authToken}
+            selectedAppId={selectedAppId}
+            onSimulateAttack={handleSimulateAttack}
+            onTestingDataGenerated={() => {
+              fetchStats();
+              fetchRecords();
+              fetchApps();
+            }}
             onSaved={(newSettings) => setPlatformSettings(newSettings)}
           />
         )}
@@ -2036,7 +2329,7 @@ register_shutdown_function(function() {
             <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900 mb-4 flex items-start gap-2">
               <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
               <span>
-                <strong>Important:</strong> Please copy this API key now. For your security, this key is hashed with SHA-256 and will <strong>never be shown again</strong>.
+                <strong>Copy this now — you won't be able to see it again. The old key stops working immediately.</strong>
               </span>
             </div>
 
@@ -2044,11 +2337,19 @@ register_shutdown_function(function() {
               <label className="block text-xs font-semibold text-slate-700 mb-1">API Key</label>
               <div className="flex items-center gap-2">
                 <input
-                  type="text"
+                  type={isKeyVisible ? 'text' : 'password'}
                   readOnly
                   value={newKeyModal.plainKey}
                   className="w-full font-mono text-xs px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg select-all text-slate-900 font-semibold"
                 />
+                <button
+                  type="button"
+                  onClick={() => setIsKeyVisible((visible) => !visible)}
+                  className="p-2 text-slate-500 hover:text-blue-600 border border-slate-300 rounded-lg cursor-pointer"
+                  title={isKeyVisible ? 'Hide API key' : 'Show API key'}
+                >
+                  {isKeyVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(newKeyModal.plainKey);
@@ -2065,10 +2366,10 @@ register_shutdown_function(function() {
 
             <div className="flex justify-end pt-2">
               <button
-                onClick={() => setNewKeyModal(null)}
+                onClick={closeKeyDialog}
                 className="px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg cursor-pointer"
               >
-                I have safely stored this key
+                Close — I have safely stored this key
               </button>
             </div>
           </div>
@@ -2115,7 +2416,7 @@ register_shutdown_function(function() {
               <div className="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-lg border border-slate-200 text-[11px]">
                 <div>
                   <span className="text-slate-500">Application:</span>{' '}
-                  <span className="text-slate-900 font-bold">{selectedRecord.app_name || 'Fake Shop'}</span>
+                  <span className="text-slate-900 font-bold">{selectedRecord.app_name || 'Unknown application'}</span>
                 </div>
                 <div>
                   <span className="text-slate-500">Normalized Path:</span>{' '}

@@ -153,9 +153,16 @@ threatsRouter.patch('/:id/status', (req: Request, res: Response) => {
  * 5. Path Traversal & Command Injection (RULE-08-PATH-TRAVERSAL)
  */
 threatsRouter.post('/simulate-attack', async (req: Request, res: Response) => {
-  const firstApp = appsService.getFirstActiveApp();
-  const targetAppId = (req.body?.app_id as string) || firstApp?.app.id || 'app_fakeshop_demo';
-  const targetAppName = firstApp?.app.name || 'Fake Shop (Demo)';
+  const requestedAppId = req.body?.app_id as string | undefined;
+  const targetApp = requestedAppId
+    ? appsService.getAppById(requestedAppId)
+    : appsService.getFirstActiveApp()?.app || null;
+  if (!targetApp) {
+    res.status(400).json({ error: 'Register an application before using the attack simulator.' });
+    return;
+  }
+  const targetAppId = targetApp.id;
+  const targetAppName = targetApp.name;
 
   const firedRules: string[] = [];
 
@@ -203,6 +210,7 @@ threatsRouter.post('/simulate-attack', async (req: Request, res: Response) => {
       response_size: 320,
       user_agent: userAgent,
       login_result: loginResult,
+      is_synthetic: true,
       threat_rule: detection.ruleName || 'normal',
       threat_rule_id: detection.ruleId || undefined,
       label: detection.label,

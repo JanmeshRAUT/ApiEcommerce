@@ -323,7 +323,7 @@ export function ThreatsView({ apps, selectedAppId, onThreatsUpdated, initialThre
                       <p className="text-xs text-slate-500">
                         {searchQuery || severityFilter !== 'ALL' || statusFilter !== 'ALL'
                           ? 'No threats match your active filter criteria.'
-                          : 'Your API traffic is clean. Use the "Attack Simulator" button above to fire sample attacks.'}
+                          : 'No traffic received yet'}
                       </p>
                     </div>
                   </td>

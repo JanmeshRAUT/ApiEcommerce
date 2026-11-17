@@ -12,6 +12,13 @@ export interface RegisteredApp {
   created_at: string;
   last_seen_at: string | null;
   total_requests: number;
+  key_history: KeyRotation[];
+}
+
+export interface KeyRotation {
+  old_key_prefix: string | null;
+  new_key_prefix: string;
+  rotated_at: string;
 }
 
 export interface IngestEvent {
@@ -53,6 +60,7 @@ export interface TrafficRecord {
   threat_rule_id?: string; // rule ID (e.g. "RULE-06-SQL-INJECTION") if a rule fired
   label?: string; // "normal" or ML label (e.g. "sqli_suspected", "brute_force")
   label_source?: LabelSource; // "rule" | "human"
+  is_synthetic?: boolean;
 }
 
 export interface FeatureRow {

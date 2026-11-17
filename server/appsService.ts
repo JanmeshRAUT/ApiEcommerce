@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import { RegisteredApp } from './types.js';
+import { KeyRotation, RegisteredApp } from './types.js';
 
 const APPS_FILE = path.resolve(process.cwd(), 'apps.json');
 
@@ -12,7 +12,6 @@ class AppsService {
 
   constructor() {
     this.loadFromDisk();
-    this.ensureDemoApp();
   }
 
   private hashKey(key: string): string {
@@ -30,7 +29,10 @@ class AppsService {
             delete item._initialPlainKey;
             strippedLegacyPlainKey = true;
           }
-          this.apps.set(item.id, item as RegisteredApp);
+          this.apps.set(item.id, {
+            ...item,
+            key_history: Array.isArray(item.key_history) ? item.key_history : [],
+          } as RegisteredApp);
         }
         if (strippedLegacyPlainKey) {
           this.saveToDisk();
@@ -51,34 +53,6 @@ class AppsService {
       fs.writeFileSync(APPS_FILE, JSON.stringify(list, null, 2), 'utf8');
     } catch (err) {
       console.error('[AppsService] Failed to save apps to apps.json:', err);
-    }
-  }
-
-  /**
-   * Ensures at least one demo app exists on initial launch.
-   * Prints the demo API key ONCE in server console on first start only.
-   */
-  private ensureDemoApp() {
-    if (this.apps.size === 0) {
-      const demoKey = 'sk_live_demo_' + crypto.randomBytes(24).toString('hex');
-      const keyHash = this.hashKey(demoKey);
-      const demoApp: RegisteredApp = {
-        id: 'app_fakeshop_demo',
-        name: 'Fake Shop (Demo)',
-        environment: 'dev',
-        key_prefix: `${demoKey.slice(0, 14)}...${demoKey.slice(-6)}`,
-        key_hash: keyHash,
-        status: 'active',
-        created_at: new Date().toISOString(),
-        last_seen_at: new Date().toISOString(),
-        total_requests: 0,
-      };
-      this.apps.set(demoApp.id, demoApp);
-      this.saveToDisk();
-      console.log('====================================================================');
-      console.log('[AppsService] First start: Created default demo app "Fake Shop (Demo)"');
-      console.log(`[AppsService] Demo API Key (shown ONCE): ${demoKey}`);
-      console.log('====================================================================');
     }
   }
 
@@ -111,6 +85,7 @@ class AppsService {
       created_at: new Date().toISOString(),
       last_seen_at: null,
       total_requests: 0,
+      key_history: [],
     };
 
     this.apps.set(appId, newApp);
@@ -130,9 +105,16 @@ class AppsService {
     const plainKey = this.generateApiKey(app.environment);
     const keyHash = this.hashKey(plainKey);
     const keyPrefix = `${plainKey.slice(0, 14)}...${plainKey.slice(-6)}`;
+    const oldKeyPrefix = app.key_prefix;
 
     app.key_hash = keyHash;
     app.key_prefix = keyPrefix;
+    const rotation: KeyRotation = {
+      old_key_prefix: oldKeyPrefix,
+      new_key_prefix: keyPrefix,
+      rotated_at: new Date().toISOString(),
+    };
+    app.key_history = [rotation, ...(app.key_history || [])];
     this.saveToDisk();
 
     return { app, plainKey };

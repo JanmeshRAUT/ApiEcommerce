@@ -61,7 +61,7 @@ async function bootstrap() {
 
   const appCount = appsService.listApps().length;
   app.listen(config.port, '0.0.0.0', () => {
-    console.log(`[Gatekeeper] Ready! Dashboard live at http://0.0.0.0:${config.port}`);
+    console.log(`[Gatekeeper] Ready! Dashboard live at http://localhost:${config.port}`);
     console.log(`[Gatekeeper] Active Applications: ${appCount} registered`);
   });
 }
