@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="50%" stop-color="#1D4ED8" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+
+    <!-- Core Glow Gradient -->
+    <linearGradient id="cyanGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#06B6D4" />
+    </linearGradient>
+
+    <!-- Metallic Accent -->
+    <linearGradient id="neonAccent" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#60A5FA" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#38BDF8" stop-opacity="0.2" />
+    </linearGradient>
+
+    <!-- Drop Shadow Filter -->
+    <filter id="shadowFilter" x="-10%" y="-10%" width="125%" height="125%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#1E3A8A" flood-opacity="0.45" />
+    </filter>
+
+    <!-- Subtle Glow Filter -->
+    <filter id="glowFilter" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Shield -->
+  <path d="M256 36 L432 108 C432 272 360 396 256 468 C152 396 80 272 80 108 Z"
+        fill="url(#shieldGrad)"
+        filter="url(#shadowFilter)"
+        stroke="#60A5FA"
+        stroke-width="8"
+        stroke-linejoin="round" />
+
+  <!-- Inner Shield Trim Line -->
+  <path d="M256 68 L404 130 C404 268 340 376 256 436 C172 376 108 268 108 130 Z"
+        fill="none"
+        stroke="url(#neonAccent)"
+        stroke-width="4"
+        stroke-dasharray="14 8"
+        opacity="0.7" />
+
+  <!-- Gatekeeper Geometric Gateway Aperture -->
+  <!-- Left Gate Pylon -->
+  <path d="M184 190 L220 190 L220 310 L184 310 L160 250 Z"
+        fill="#1E293B"
+        stroke="#38BDF8"
+        stroke-width="5"
+        stroke-linejoin="round" />
+
+  <!-- Right Gate Pylon -->
+  <path d="M328 190 L292 190 L292 310 L328 310 L352 250 Z"
+        fill="#1E293B"
+        stroke="#38BDF8"
+        stroke-width="5"
+        stroke-linejoin="round" />
+
+  <!-- Central Telemetry Pulse Rings (Radar & Monitoring Waves) -->
+  <circle cx="256" cy="250" r="76"
+          fill="none"
+          stroke="#38BDF8"
+          stroke-width="3"
+          stroke-dasharray="12 6"
+          opacity="0.45" />
+
+  <circle cx="256" cy="250" r="54"
+          fill="none"
+          stroke="#60A5FA"
+          stroke-width="4"
+          opacity="0.6" />
+
+  <!-- Central Core Nexus -->
+  <circle cx="256" cy="250" r="28"
+          fill="url(#cyanGlow)"
+          filter="url(#glowFilter)" />
+
+  <circle cx="256" cy="250" r="14"
+          fill="#FFFFFF" />
+
+  <!-- Security Telemetry Nodes -->
+  <!-- Top Sensor Node -->
+  <circle cx="256" cy="136" r="10" fill="#38BDF8" filter="url(#glowFilter)" />
+  <line x1="256" y1="146" x2="256" y2="222" stroke="#38BDF8" stroke-width="4" stroke-dasharray="6 4" opacity="0.8" />
+
+  <!-- Bottom Lock Node -->
+  <circle cx="256" cy="370" r="8" fill="#38BDF8" />
+  <line x1="256" y1="278" x2="256" y2="362" stroke="#38BDF8" stroke-width="4" stroke-dasharray="6 4" opacity="0.8" />
+
+  <!-- Left / Right Sensor Links -->
+  <circle cx="160" cy="250" r="6" fill="#60A5FA" />
+  <circle cx="352" cy="250" r="6" fill="#60A5FA" />
+  <line x1="166" y1="250" x2="228" y2="250" stroke="#38BDF8" stroke-width="3" opacity="0.75" />
+  <line x1="284" y1="250" x2="346" y2="250" stroke="#38BDF8" stroke-width="3" opacity="0.75" />
+</svg>

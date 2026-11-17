@@ -45,6 +45,7 @@ import { ToastNotifications } from './components/ToastNotifications';
 import { ApplicationsView } from './components/ApplicationsView';
 import { ConnectGuideView } from './components/ConnectGuideView';
 import { DashboardView } from './components/DashboardView';
+import { Logo } from './components/Logo';
 import { GuideLanguage } from './data/connectGuideSnippets';
 import { RegisteredApp } from './components/ApplicationsView';
 import { DashboardStats, TrafficRecord } from './components/DashboardView';
@@ -536,9 +537,7 @@ export default function App() {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 text-slate-900 antialiased">
         <div className="w-full max-w-md bg-white border border-slate-200 rounded-lg shadow-lg shadow-slate-200/50 p-8">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-              <Shield className="w-5 h-5" />
-            </div>
+            <Logo size={44} className="w-11 h-11" />
             <div>
               <h1 className="text-lg font-bold text-slate-900 tracking-tight">API Security Platform</h1>
               <p className="text-xs text-slate-500">Central Monitoring & Telemetry Ingest</p>
@@ -621,13 +620,7 @@ export default function App() {
         {/* Brand & Tabs */}
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-sm shadow-blue-500/20">
-              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" aria-hidden="true">
-                <path d="M5 7.5 12 4l7 3.5v9L12 20l-7-3.5v-9Z" stroke="currentColor" strokeWidth="1.7" />
-                <path d="m8 9.5 4-2 4 2v5l-4 2-4-2v-5Z" stroke="currentColor" strokeWidth="1.7" />
-                <path d="M12 7.5v9M8 9.5l4 2 4-2" stroke="currentColor" strokeWidth="1.2" />
-              </svg>
-            </div>
+            <Logo size={36} className="w-9 h-9" />
             <div>
               <div className="font-bold text-slate-900 text-sm tracking-tight flex items-center gap-2">
                 <span>Gatekeeper Security Platform</span>

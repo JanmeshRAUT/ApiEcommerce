@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" width="100%" height="100%">
+  <defs>
+    <linearGradient id="textShieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="50%" stop-color="#1D4ED8" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+    <linearGradient id="textCyanGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#06B6D4" />
+    </linearGradient>
+    <linearGradient id="textTitleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#1E293B" />
+    </linearGradient>
+    <filter id="textDropShadow" x="-10%" y="-10%" width="125%" height="125%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#1E3A8A" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <!-- Left Shield Icon (Scaled & Offset: cx=80, cy=80) -->
+  <g transform="translate(16, 12) scale(0.27)" filter="url(#textDropShadow)">
+    <path d="M256 36 L432 108 C432 272 360 396 256 468 C152 396 80 272 80 108 Z"
+          fill="url(#textShieldGrad)"
+          stroke="#60A5FA"
+          stroke-width="8"
+          stroke-linejoin="round" />
+
+    <path d="M256 68 L404 130 C404 268 340 376 256 436 C172 376 108 268 108 130 Z"
+          fill="none"
+          stroke="#93C5FD"
+          stroke-width="4"
+          stroke-dasharray="14 8"
+          opacity="0.75" />
+
+    <path d="M184 190 L220 190 L220 310 L184 310 L160 250 Z"
+          fill="#1E293B"
+          stroke="#38BDF8"
+          stroke-width="6"
+          stroke-linejoin="round" />
+
+    <path d="M328 190 L292 190 L292 310 L328 310 L352 250 Z"
+          fill="#1E293B"
+          stroke="#38BDF8"
+          stroke-width="6"
+          stroke-linejoin="round" />
+
+    <circle cx="256" cy="250" r="76"
+            fill="none"
+            stroke="#38BDF8"
+            stroke-width="4"
+            stroke-dasharray="12 6"
+            opacity="0.5" />
+
+    <circle cx="256" cy="250" r="28"
+            fill="url(#textCyanGlow)" />
+
+    <circle cx="256" cy="250" r="14"
+            fill="#FFFFFF" />
+
+    <circle cx="256" cy="136" r="10" fill="#38BDF8" />
+    <line x1="256" y1="146" x2="256" y2="222" stroke="#38BDF8" stroke-width="4" stroke-dasharray="6 4" />
+  </g>
+
+  <!-- Typography -->
+  <text x="168" y="74" font-family="'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="34" font-weight="800" fill="url(#textTitleGrad)" letter-spacing="-0.8">
+    Gatekeeper
+  </text>
+  <text x="368" y="74" font-family="'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="34" font-weight="800" fill="#2563EB" letter-spacing="-0.8">
+    Security
+  </text>
+
+  <!-- Subtitle Tagline -->
+  <text x="170" y="106" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="600" fill="#64748B" letter-spacing="1.5">
+    CENTRAL INGEST &amp; THREAT MONITORING
+  </text>
+
+  <!-- Pill Badge -->
+  <rect x="520" y="52" width="94" height="26" rx="6" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="1.2" />
+  <text x="567" y="69" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="700" fill="#1D4ED8" letter-spacing="0.5">
+    v2.0 ACTIVE
+  </text>
+</svg>
