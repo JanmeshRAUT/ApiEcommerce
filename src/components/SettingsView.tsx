@@ -197,7 +197,7 @@ export function SettingsView({
   return (
     <form onSubmit={handleSave} className="flex flex-col gap-6 max-w-4xl">
       {/* Header */}
-      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded-lg p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
             <Sliders className="w-5 h-5 text-blue-600" />
@@ -218,7 +218,7 @@ export function SettingsView({
           <button
             type="submit"
             disabled={isSaving}
-            className="px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+            className="px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
           >
             <Check className="w-3.5 h-3.5" />
             <span>{isSaving ? 'Saving...' : 'Save Settings'}</span>
@@ -227,7 +227,7 @@ export function SettingsView({
       </div>
 
       {/* SECTION 1: ALERTS CONFIGURATION */}
-      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+      <div className="bg-white border border-slate-200 rounded-md overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-200 bg-slate-50/70 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
@@ -235,7 +235,7 @@ export function SettingsView({
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-900 tracking-tight">Alerts & Webhook Notifications</h3>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-xs text-slate-500">
                 Dispatches background alerts (3s timeout, up to 2 retries) for new threats & 100-hit milestones
               </p>
             </div>
@@ -250,7 +250,7 @@ export function SettingsView({
                 Webhook URL (Slack, Discord, Telegram, or any HTTP endpoint)
               </label>
               {envWebhookConfigured && (
-                <span className="text-[10px] font-mono font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                <span className="text-xs font-mono font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
                   ALERT_WEBHOOK_URL env detected
                 </span>
               )}
@@ -273,7 +273,7 @@ export function SettingsView({
                 <span>{isTestingAlert ? 'Sending...' : 'Send test alert'}</span>
               </button>
             </div>
-            <p className="text-[11px] text-slate-500 mt-1.5">
+            <p className="text-xs text-slate-500 mt-1.5">
               Configured from this dashboard or via the <code className="font-mono text-slate-700">ALERT_WEBHOOK_URL</code> environment variable. Alert payloads never include secrets, query parameter values, or request bodies.
             </p>
 
@@ -293,7 +293,7 @@ export function SettingsView({
                 <div>
                   <div className="font-semibold">{testAlertResult.message}</div>
                   {testAlertResult.entry && (
-                    <div className="text-[11px] opacity-80 font-mono mt-0.5">
+                    <div className="text-xs opacity-80 font-mono mt-0.5">
                       Attempts: {testAlertResult.entry.attempts} · Status: {testAlertResult.entry.status}
                     </div>
                   )}
@@ -323,7 +323,7 @@ export function SettingsView({
                 <option value="medium">Medium, High &amp; Critical</option>
                 <option value="low">All Severities (Low and above)</option>
               </select>
-              <p className="text-[11px] text-slate-500 mt-1.5">
+              <p className="text-xs text-slate-500 mt-1.5">
                 Only newly detected threats meeting or exceeding this severity trigger a webhook alert.
               </p>
             </div>
@@ -350,7 +350,7 @@ export function SettingsView({
                 />
                 <span className="text-xs text-slate-500">minutes per attacker + rule</span>
               </div>
-              <p className="text-[11px] text-slate-500 mt-1.5">
+              <p className="text-xs text-slate-500 mt-1.5">
                 Default: 30 minutes. Later hits only increment the hit count, with 1 extra alert sent at 100 hits.
               </p>
             </div>
@@ -359,14 +359,14 @@ export function SettingsView({
       </div>
 
       {/* SECTION 2: DETECTION MODE & TOASTS */}
-      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+      <div className="bg-white border border-slate-200 rounded-md overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-200 bg-slate-50/70 flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
             <Shield className="w-4 h-4" />
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-900 tracking-tight">Detection Operating Mode</h3>
-            <p className="text-[11px] text-slate-500">Shadow Mode never blocks live traffic</p>
+            <p className="text-xs text-slate-600">Monitoring only (not blocking traffic)</p>
           </div>
         </div>
 
@@ -389,12 +389,12 @@ export function SettingsView({
               />
               <div>
                 <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                  <span>Shadow Mode</span>
-                  <span className="text-[10px] font-mono font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                  <span>Monitoring only (not blocking traffic)</span>
+                  <span className="text-xs font-mono font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
                     RECOMMENDED
                   </span>
                 </div>
-                <p className="text-slate-500 text-[11px] mt-1 leading-relaxed">
+                <p className="text-slate-500 text-xs mt-1 leading-relaxed">
                   Evaluates requests in background. Records threat telemetry without ever blocking or delaying user requests.
                 </p>
               </div>
@@ -417,7 +417,7 @@ export function SettingsView({
               />
               <div>
                 <div className="font-bold text-slate-900">Alert-Only Mode</div>
-                <p className="text-slate-500 text-[11px] mt-1 leading-relaxed">
+                <p className="text-slate-500 text-xs mt-1 leading-relaxed">
                   Non-blocking evaluation with high-visibility alert dispatch for SOC responders.
                 </p>
               </div>
@@ -430,7 +430,7 @@ export function SettingsView({
                 <Bell className="w-4 h-4 text-slate-500" />
                 <div>
                   <span className="font-bold text-slate-800 text-xs block">Dashboard Live Toast Notifications</span>
-                  <span className="text-[11px] text-slate-500">Show top-right toast alerts for High &amp; Critical threats</span>
+                  <span className="text-xs text-slate-500">Show top-right toast alerts for High &amp; Critical threats</span>
                 </div>
               </div>
               <input
@@ -447,14 +447,14 @@ export function SettingsView({
       </div>
 
       {/* TESTING TOOLS */}
-      <details className="bg-white border border-amber-200 rounded-xl overflow-hidden shadow-xs">
+      <details className="bg-white border border-amber-200 rounded-md overflow-hidden">
         <summary className="px-5 py-4 bg-amber-50/70 flex items-center gap-2.5 cursor-pointer list-none">
           <div className="w-8 h-8 rounded-lg bg-amber-100 border border-amber-200 flex items-center justify-center text-amber-700">
             <Flame className="w-4 h-4" />
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-900 tracking-tight">Testing Tools</h3>
-            <p className="text-[11px] text-amber-800 font-medium">
+            <p className="text-xs text-amber-800 font-medium">
               This sends FAKE traffic for testing. Do not use this if you only want real data.
             </p>
           </div>
@@ -479,13 +479,13 @@ export function SettingsView({
             <span>{isGeneratingSampleData ? 'Generating Samples...' : 'Generate sample training data'}</span>
           </button>
           {testingToolsMessage && (
-            <span className="text-[11px] font-medium text-slate-600">{testingToolsMessage}</span>
+            <span className="text-xs font-medium text-slate-600">{testingToolsMessage}</span>
           )}
         </div>
       </details>
 
       {/* SECTION 3: DATA RETENTION & CLEANUP (STEP 5) */}
-      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+      <div className="bg-white border border-slate-200 rounded-md overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-200 bg-slate-50/70 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
@@ -493,7 +493,7 @@ export function SettingsView({
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-900 tracking-tight">Data Retention &amp; Daily Clean-up</h3>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-xs text-slate-500">
                 Automatic daily background job prunes expired records from <code className="font-mono">traffic.jsonl</code> and <code className="font-mono">features.jsonl</code>
               </p>
             </div>
@@ -529,7 +529,7 @@ export function SettingsView({
                 }
                 className="w-32 px-3 py-2 text-xs font-mono font-bold bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
               />
-              <p className="text-[11px] text-slate-500 mt-1.5">
+              <p className="text-xs text-slate-500 mt-1.5">
                 Days to keep raw request metadata in <code className="font-mono">traffic.jsonl</code> (default: 30 days).
               </p>
             </div>
@@ -551,7 +551,7 @@ export function SettingsView({
                 }
                 className="w-32 px-3 py-2 text-xs font-mono font-bold bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
               />
-              <p className="text-[11px] text-slate-500 mt-1.5">
+              <p className="text-xs text-slate-500 mt-1.5">
                 Days to keep 1m/5m/1h aggregated ML feature rows in <code className="font-mono">features.jsonl</code> (default: 90 days).
               </p>
             </div>

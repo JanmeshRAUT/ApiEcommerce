@@ -68,7 +68,7 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
 
           <>
             {/* APP SELECTOR BAR */}
-            <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-xs">
+            <div className="bg-white border border-slate-200 rounded-lg p-4 flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <span className="text-xs font-semibold text-slate-700">Filter By Application:</span>
                 <div className="relative">
@@ -99,7 +99,7 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
             </div>
 
             {(stats?.total_requests ?? 0) === 0 ? (
-              <div className="bg-white border border-slate-200 rounded-xl p-12 text-center shadow-xs">
+              <div className="bg-white border border-slate-200 rounded-lg p-12 text-center">
                 <Activity className="w-10 h-10 mx-auto text-blue-600 mb-3" />
                 <p className="text-sm font-semibold text-slate-800">No traffic received yet</p>
               </div>
@@ -108,7 +108,7 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
             {/* ROW 1: TOP 5 METRIC CARDS (INCLUDING OPEN THREATS BY SEVERITY) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               {/* Card 1: Total Requests */}
-              <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
+              <div className="bg-white border border-slate-200 rounded-lg p-5">
                 <div className="flex items-center justify-between text-slate-500 mb-2">
                   <span className="text-xs font-semibold tracking-wide uppercase text-slate-500">Total Requests</span>
                   <div className="p-1.5 rounded-md bg-blue-50 text-blue-600">
@@ -132,7 +132,7 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
               {/* Card 2: Open Threats by Severity (STEP 3 KPI CARD) */}
               <div
                 onClick={() => setActiveTab('threats')}
-                className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs hover:border-blue-400 hover:shadow-sm cursor-pointer transition-all group"
+                className="bg-white border border-slate-200 rounded-lg p-5 hover:border-blue-400 hover:shadow-sm cursor-pointer transition-all group"
               >
                 <div className="flex items-center justify-between text-slate-500 mb-2">
                   <span className="text-xs font-semibold tracking-wide uppercase text-slate-500 group-hover:text-blue-600">
@@ -148,7 +148,7 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
                   </span>
                   <span className="text-xs text-slate-500">detected</span>
                 </div>
-                <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-mono">
+                <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-mono">
                   <span className="text-rose-700 font-bold">{stats?.open_threats_by_severity?.critical ?? 0} crit</span>
                   <span className="text-orange-700 font-bold">{stats?.open_threats_by_severity?.high ?? 0} high</span>
                   <span className="text-amber-700">{stats?.open_threats_by_severity?.medium ?? 0} med</span>
@@ -157,7 +157,7 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
               </div>
 
               {/* Card 3: Error Rate */}
-              <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
+              <div className="bg-white border border-slate-200 rounded-lg p-5">
                 <div className="flex items-center justify-between text-slate-500 mb-2">
                   <span className="text-xs font-semibold tracking-wide uppercase text-slate-500">Error Rate</span>
                   <div className={`p-1.5 rounded-md ${(stats?.error_rate ?? 0) > 15 ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'}`}>
@@ -179,7 +179,7 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
               </div>
 
               {/* Card 4: Failed Logins */}
-              <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
+              <div className="bg-white border border-slate-200 rounded-lg p-5">
                 <div className="flex items-center justify-between text-slate-500 mb-2">
                   <span className="text-xs font-semibold tracking-wide uppercase text-slate-500">Failed Logins</span>
                   <div className="p-1.5 rounded-md bg-rose-50 text-rose-600">
@@ -194,12 +194,12 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
                 </div>
                 <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
                   <span>Status:</span>
-                  <span className="text-slate-600 text-[11px]">Credential-safe</span>
+                  <span className="text-slate-600 text-xs">Credential-safe</span>
                 </div>
               </div>
 
               {/* Card 5: Average Latency */}
-              <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
+              <div className="bg-white border border-slate-200 rounded-lg p-5">
                 <div className="flex items-center justify-between text-slate-500 mb-2">
                   <span className="text-xs font-semibold tracking-wide uppercase text-slate-500">Avg Latency</span>
                   <div className="p-1.5 rounded-md bg-blue-50 text-blue-600">
@@ -222,7 +222,7 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
             {/* ROW 2: CHARTS (Line Chart: Throughput + Bar Chart: Top Endpoints + Status Breakdown) */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Chart 1: Requests Per Minute (2 Columns) */}
-              <div className="lg:col-span-2 bg-white border border-slate-200 rounded-xl p-5 shadow-xs flex flex-col">
+              <div className="lg:col-span-2 bg-white border border-slate-200 rounded-lg p-5 flex flex-col">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="text-sm font-bold text-slate-900 tracking-tight">Requests Per Minute</h3>
@@ -295,7 +295,7 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
               </div>
 
               {/* Chart 2: Status Breakdown Chart (1 Column) */}
-              <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs flex flex-col">
+              <div className="bg-white border border-slate-200 rounded-lg p-5 flex flex-col">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="text-sm font-bold text-slate-900 tracking-tight">Status Breakdown</h3>
@@ -327,7 +327,7 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
             {/* ROW 3: TOP ENDPOINTS + TOP CLIENT IPs & 5 SLOWEST ENDPOINTS */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Top Endpoints Bar Chart (1 Column) */}
-              <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs flex flex-col">
+              <div className="bg-white border border-slate-200 rounded-lg p-5 flex flex-col">
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <h3 className="text-sm font-bold text-slate-900 tracking-tight">Top 10 Endpoints</h3>
@@ -370,7 +370,7 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
               </div>
 
               {/* Table A: Top Client IPs (1 Column) */}
-              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs flex flex-col">
+              <div className="bg-white border border-slate-200 rounded-md overflow-hidden flex flex-col">
                 <div className="px-5 py-3.5 border-b border-slate-200 bg-slate-50/60 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Globe className="w-4 h-4 text-blue-600" />
@@ -418,7 +418,7 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
               </div>
 
               {/* Table B: 5 Slowest Endpoints (1 Column) */}
-              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs flex flex-col">
+              <div className="bg-white border border-slate-200 rounded-md overflow-hidden flex flex-col">
                 <div className="px-5 py-3.5 border-b border-slate-200 bg-slate-50/60 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4 text-blue-600" />
@@ -467,7 +467,7 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
             </div>
 
             {/* ROW 4: LIVE TABLE OF LATEST 50 REQUESTS WITH FILTERS */}
-            <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs flex flex-col">
+            <div className="bg-white border border-slate-200 rounded-md overflow-hidden flex flex-col">
               {/* Table Header and Filters */}
               <div className="p-4 border-b border-slate-200 bg-slate-50/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
@@ -500,8 +500,8 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
                       <button
                         key={m}
                         onClick={() => setMethodFilter(m)}
-                        className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
-                          methodFilter === m ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                        className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
+                          methodFilter === m ? 'bg-blue-600 text-white' : 'text-slate-600 hover:text-slate-900'
                         }`}
                       >
                         {m}
@@ -515,8 +515,8 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
                       <button
                         key={s}
                         onClick={() => setStatusFilter(s)}
-                        className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
-                          statusFilter === s ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                        className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
+                          statusFilter === s ? 'bg-blue-600 text-white' : 'text-slate-600 hover:text-slate-900'
                         }`}
                       >
                         {s}
@@ -528,7 +528,7 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
                   <a
                     href="/api/monitor/export"
                     download="traffic.jsonl"
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg transition-colors shadow-xs"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg transition-colors"
                     title="Download raw traffic.jsonl"
                   >
                     <Download className="w-3.5 h-3.5 text-slate-500" />
@@ -541,7 +541,7 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
               <div className="overflow-x-auto flex-1">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 font-semibold text-[11px]">
+                    <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 font-semibold text-xs">
                       <th className="py-2.5 px-3 whitespace-nowrap">Time</th>
                       <th className="py-2.5 px-3 whitespace-nowrap">App</th>
                       <th className="py-2.5 px-3 whitespace-nowrap">Method</th>
@@ -599,14 +599,14 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
 
                             {/* App Name */}
                             <td className="py-2.5 px-3 whitespace-nowrap">
-                              <span className="font-sans text-[11px] font-semibold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded">
+                              <span className="font-sans text-xs font-semibold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded">
                                 {r.app_name || 'Unknown application'}
                               </span>
                             </td>
 
                             {/* Method */}
                             <td className="py-2.5 px-3 whitespace-nowrap">
-                              <span className={`px-2 py-0.5 rounded text-[11px] font-semibold ${methodColor}`}>
+                              <span className={`px-2 py-0.5 rounded text-xs font-semibold ${methodColor}`}>
                                 {r.method}
                               </span>
                             </td>
@@ -617,7 +617,7 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
                             </td>
 
                             {/* Query Keys (names only) */}
-                            <td className="py-2.5 px-3 text-slate-500 whitespace-nowrap text-[11px]">
+                            <td className="py-2.5 px-3 text-slate-500 whitespace-nowrap text-xs">
                               {r.query_param_names && r.query_param_names.length > 0 ? (
                                 <span className="text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded">
                                   [{r.query_param_names.join(', ')}]
@@ -629,7 +629,7 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
 
                             {/* Status Code */}
                             <td className="py-2.5 px-3 whitespace-nowrap">
-                              <span className={`px-1.5 py-0.5 rounded border text-[11px] font-bold tabular-nums ${statusColor}`}>
+                              <span className={`px-1.5 py-0.5 rounded border text-xs font-bold tabular-nums ${statusColor}`}>
                                 {r.status_code}
                               </span>
                             </td>
@@ -640,7 +640,7 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
                             </td>
 
                             {/* Client IP */}
-                            <td className="py-2.5 px-3 text-right whitespace-nowrap tabular-nums text-slate-500 text-[11px]">
+                            <td className="py-2.5 px-3 text-right whitespace-nowrap tabular-nums text-slate-500 text-xs">
                               {r.client_ip}
                             </td>
 
@@ -658,12 +658,12 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
                             {/* Threat Detection & ML Label */}
                             <td className="py-2.5 px-3 whitespace-nowrap font-sans">
                               {r.threat_rule && r.threat_rule !== 'normal' ? (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
                                   <AlertTriangle className="w-3 h-3 text-rose-600 shrink-0" />
                                   <span>{r.label || r.threat_rule}</span>
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                                   <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
                                   <span>{r.label || 'normal'}</span>
                                   {r.label_source === 'human' && (
@@ -703,7 +703,7 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
       {/* INSPECT RECORD MODAL */}
       {selectedRecord && (
         <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 rounded-xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-xl">
+          <div className="bg-white border border-slate-200 rounded-lg max-w-2xl w-full max-h-[85vh] flex flex-col shadow-xl">
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
               <div>
@@ -737,7 +737,7 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
 
             {/* Modal Body */}
             <div className="p-6 overflow-y-auto space-y-4 text-xs font-mono">
-              <div className="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-lg border border-slate-200 text-[11px]">
+              <div className="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-lg border border-slate-200 text-xs">
                 <div>
                   <span className="text-slate-500">Application:</span>{' '}
                   <span className="text-slate-900 font-bold">{selectedRecord.app_name || 'Unknown application'}</span>
@@ -779,11 +779,11 @@ export function DashboardView({ apps, selectedAppId, setSelectedAppId, setActive
               </div>
 
               <div>
-                <div className="text-[11px] font-sans font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
+                <div className="text-xs font-sans font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
                   <span>Exact Recorded Telemetry Object</span>
                   <span className="text-slate-400 font-normal">No passwords, tokens, or query values</span>
                 </div>
-                <pre className="p-4 bg-slate-900 text-slate-100 rounded-lg overflow-x-auto text-[11px] leading-relaxed">
+                <pre className="p-4 bg-slate-900 text-slate-100 rounded-lg overflow-x-auto text-xs leading-relaxed">
                   {JSON.stringify(selectedRecord, null, 2)}
                 </pre>
               </div>

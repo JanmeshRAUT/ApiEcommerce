@@ -60,7 +60,7 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl max-w-md w-full border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div className="bg-white rounded-md max-w-md w-full border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-slate-200 bg-slate-50">
           <div className="flex items-center gap-2.5">
@@ -69,7 +69,7 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
             </div>
             <div>
               <h3 className="font-bold text-slate-900 text-sm tracking-tight">Platform Security Settings</h3>
-              <p className="text-[11px] text-slate-500">Configure global threat detection posture</p>
+              <p className="text-xs text-slate-500">Configure global threat detection posture</p>
             </div>
           </div>
           <button
@@ -106,12 +106,12 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
                 />
                 <div>
                   <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                    <span>Shadow Mode</span>
-                    <span className="text-[10px] font-mono font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                    <span>Monitoring only (not blocking traffic)</span>
+                    <span className="text-xs font-mono font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
                       RECOMMENDED
                     </span>
                   </div>
-                  <p className="text-slate-500 text-[11px] mt-0.5 leading-relaxed">
+                  <p className="text-slate-500 text-xs mt-0.5 leading-relaxed">
                     Evaluates requests in background. Records threat telemetry and live statistics without ever blocking or dropping traffic.
                   </p>
                 </div>
@@ -135,7 +135,7 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
                 />
                 <div>
                   <div className="font-bold text-slate-900">Alert-Only Mode</div>
-                  <p className="text-slate-500 text-[11px] mt-0.5 leading-relaxed">
+                  <p className="text-slate-500 text-xs mt-0.5 leading-relaxed">
                     Shadow mode plus high-visibility real-time alert dispatch for incident responders and SOC operators.
                   </p>
                 </div>
@@ -150,7 +150,7 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
                 <Bell className="w-4 h-4 text-slate-500" />
                 <div>
                   <span className="font-bold text-slate-800 text-xs block">Live Toast Notifications</span>
-                  <span className="text-[11px] text-slate-500">Pop up toast alerts on High & Critical severity threats</span>
+                  <span className="text-xs text-slate-500">Pop up toast alerts on High & Critical severity threats</span>
                 </div>
               </div>
               <input
@@ -167,7 +167,7 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
 
         {/* Footer */}
         <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
-          <span className="text-[11px] text-slate-500 font-mono">settings.json</span>
+          <span className="text-xs text-slate-500 font-mono">settings.json</span>
           <div className="flex items-center gap-2">
             <button
               onClick={onClose}
@@ -178,7 +178,7 @@ export function SettingsModal({ isOpen, onClose, onSaved }: SettingsModalProps) 
             <button
               disabled={isSaving}
               onClick={handleSave}
-              className="px-4 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors cursor-pointer shadow-xs flex items-center gap-1.5"
+              className="px-4 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
             >
               {savedSuccess ? (
                 <>

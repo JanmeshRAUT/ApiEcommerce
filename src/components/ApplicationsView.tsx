@@ -58,14 +58,14 @@ export function ApplicationsView({ apps, setIsRegisteringApp, handleRegisterApp,
             </div>
 
             {/* Applications Table */}
-            <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+            <div className="bg-white border border-slate-200 rounded-md overflow-hidden">
               <div className="px-4 py-3 bg-blue-50 border-b border-blue-100 text-xs text-blue-900">
                 For your safety, we only store a scrambled version of your key. We can never show it to you again after you close this box — if you lose it, regenerate instead.
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 font-semibold text-[11px]">
+                    <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 font-semibold text-xs">
                       <th className="py-3 px-4">Application Name</th>
                       <th className="py-3 px-4">Environment</th>
                       <th className="py-3 px-4">API Key Prefix</th>
@@ -92,7 +92,7 @@ export function ApplicationsView({ apps, setIsRegisteringApp, handleRegisterApp,
 
                           <td className="py-3 px-4">
                             <span
-                              className={`px-2 py-0.5 rounded text-[11px] font-semibold uppercase font-mono ${
+                              className={`px-2 py-0.5 rounded text-xs font-semibold uppercase font-mono ${
                                 app.environment === 'prod'
                                   ? 'bg-purple-50 text-purple-700 border border-purple-200'
                                   : 'bg-blue-50 text-blue-700 border border-blue-200'
@@ -102,12 +102,12 @@ export function ApplicationsView({ apps, setIsRegisteringApp, handleRegisterApp,
                             </span>
                           </td>
 
-                          <td className="py-3 px-4 font-mono text-slate-600 text-[11px]">
+                          <td className="py-3 px-4 font-mono text-slate-600 text-xs">
                             <div>{app.key_prefix}</div>
                             {app.key_history.length > 0 && (
                               <details className="mt-1 font-sans">
-                                <summary className="text-[10px] text-blue-600 cursor-pointer">Key history ({app.key_history.length})</summary>
-                                <div className="mt-1 space-y-1 text-[10px] text-slate-500">
+                                <summary className="text-xs text-blue-600 cursor-pointer">Key history ({app.key_history.length})</summary>
+                                <div className="mt-1 space-y-1 text-xs text-slate-500">
                                   {app.key_history.map((rotation) => (
                                     <div key={`${rotation.rotated_at}-${rotation.new_key_prefix}`}>
                                       {rotation.old_key_prefix} → {rotation.new_key_prefix} · {new Date(rotation.rotated_at).toLocaleString()}
@@ -120,7 +120,7 @@ export function ApplicationsView({ apps, setIsRegisteringApp, handleRegisterApp,
 
                           <td className="py-3 px-4">
                             <span
-                              className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium ${
+                              className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${
                                 app.status === 'active'
                                   ? 'bg-emerald-50 text-emerald-700'
                                   : 'bg-slate-100 text-slate-500'
@@ -131,7 +131,7 @@ export function ApplicationsView({ apps, setIsRegisteringApp, handleRegisterApp,
                             </span>
                           </td>
 
-                          <td className="py-3 px-4 text-slate-500 text-[11px]">
+                          <td className="py-3 px-4 text-slate-500 text-xs">
                             {app.last_seen_at ? new Date(app.last_seen_at).toLocaleTimeString() : 'Never'}
                           </td>
 
@@ -184,7 +184,7 @@ export function ApplicationsView({ apps, setIsRegisteringApp, handleRegisterApp,
       {/* MODAL: REGISTER APP FORM */}
       {isRegisteringApp && (
         <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 rounded-xl max-w-md w-full p-6 shadow-xl">
+          <div className="bg-white border border-slate-200 rounded-lg max-w-md w-full p-6 shadow-xl">
             <div className="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
               <h3 className="font-bold text-slate-900 text-sm">Register New Application</h3>
               <button
@@ -225,7 +225,7 @@ export function ApplicationsView({ apps, setIsRegisteringApp, handleRegisterApp,
                     />
                     <div>
                       <div className="font-semibold">Development (dev)</div>
-                      <div className="text-[10px] text-slate-500">Local or staging backends</div>
+                      <div className="text-xs text-slate-500">Local or staging backends</div>
                     </div>
                   </label>
 
@@ -243,13 +243,13 @@ export function ApplicationsView({ apps, setIsRegisteringApp, handleRegisterApp,
                     />
                     <div>
                       <div className="font-semibold">Production (prod)</div>
-                      <div className="text-[10px] text-slate-500">Live production cluster</div>
+                      <div className="text-xs text-slate-500">Live production cluster</div>
                     </div>
                   </label>
                 </div>
               </div>
 
-              <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-500 text-[11px] leading-relaxed">
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-500 text-xs leading-relaxed">
                 A 32+ character random API key (<code className="font-mono text-slate-700">sk_live_...</code>) will be generated. The system stores only its SHA-256 hash. The plain key will be revealed to you once.
               </div>
 
@@ -263,7 +263,7 @@ export function ApplicationsView({ apps, setIsRegisteringApp, handleRegisterApp,
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-xs"
+                  className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold"
                 >
                   Generate Key & Register
                 </button>
@@ -276,7 +276,7 @@ export function ApplicationsView({ apps, setIsRegisteringApp, handleRegisterApp,
       {/* MODAL: NEW API KEY (SHOWN ONCE) */}
       {newKeyModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 rounded-xl max-w-lg w-full p-6 shadow-2xl">
+          <div className="bg-white border border-slate-200 rounded-lg max-w-lg w-full p-6 shadow-2xl">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
                 <Key className="w-5 h-5" />

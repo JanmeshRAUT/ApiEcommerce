@@ -153,7 +153,7 @@ export function MlDataView({ apps, selectedAppId, authToken }: MlDataViewProps) 
   return (
     <div className="flex flex-col gap-6">
       {/* HEADER BAR */}
-      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded-lg p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
@@ -184,7 +184,7 @@ export function MlDataView({ apps, selectedAppId, authToken }: MlDataViewProps) 
             type="button"
             onClick={handleExportCsv}
             disabled={isExporting || preview.total_rows === 0}
-            className="px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+            className="px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
           >
             <Download className="w-3.5 h-3.5" />
             <span>{isExporting ? 'Exporting...' : 'Export training data'}</span>
@@ -195,7 +195,7 @@ export function MlDataView({ apps, selectedAppId, authToken }: MlDataViewProps) 
       {/* ACTION FEEDBACK MESSAGE */}
       {statusMessage && (
         <div
-          className={`p-3.5 rounded-xl border text-xs flex items-center gap-2.5 ${
+          className={`p-3.5 rounded-lg border text-xs flex items-center gap-2.5 ${
             statusMessage.type === 'success'
               ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
               : 'bg-rose-50 border-rose-200 text-rose-800'
@@ -211,7 +211,7 @@ export function MlDataView({ apps, selectedAppId, authToken }: MlDataViewProps) 
       )}
 
       {/* FILTER OPTIONS */}
-      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
+      <div className="bg-white border border-slate-200 rounded-lg p-5">
         <div className="flex items-center gap-2 mb-3 text-xs font-bold text-slate-800">
           <Filter className="w-3.5 h-3.5 text-blue-600" />
           <span>Dataset Selection &amp; Export Options</span>
@@ -283,7 +283,7 @@ export function MlDataView({ apps, selectedAppId, authToken }: MlDataViewProps) 
 
       {/* IMBALANCE WARNING */}
       {preview.imbalance_warning && (
-        <div className="bg-amber-50 border border-amber-300 text-amber-900 rounded-xl p-4 flex items-start gap-3 text-xs shadow-xs">
+        <div className="bg-amber-50 border border-amber-300 text-amber-900 rounded-lg p-4 flex items-start gap-3 text-xs">
           <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
           <div>
             <div className="font-bold text-amber-950">Unbalanced Training Dataset Warning</div>
@@ -293,7 +293,7 @@ export function MlDataView({ apps, selectedAppId, authToken }: MlDataViewProps) 
       )}
 
       {/* LABEL COUNTS & SUMMARY CARDS */}
-      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
+      <div className="bg-white border border-slate-200 rounded-lg p-5">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
           <div className="flex items-center gap-2">
             <Tag className="w-4 h-4 text-blue-600" />
@@ -334,7 +334,7 @@ export function MlDataView({ apps, selectedAppId, authToken }: MlDataViewProps) 
                   }`}
                 >
                   <div
-                    className={`text-[11px] font-mono font-bold truncate ${
+                    className={`text-xs font-mono font-bold truncate ${
                       isNormal ? 'text-emerald-800' : 'text-rose-800'
                     }`}
                     title={lbl}
@@ -343,7 +343,7 @@ export function MlDataView({ apps, selectedAppId, authToken }: MlDataViewProps) 
                   </div>
                   <div className="flex items-baseline justify-between mt-1">
                     <span className="text-xl font-bold font-mono text-slate-900 tabular-nums">{count}</span>
-                    <span className="text-[11px] font-mono text-slate-500">{pct}%</span>
+                    <span className="text-xs font-mono text-slate-500">{pct}%</span>
                   </div>
                 </div>
               );
@@ -353,11 +353,11 @@ export function MlDataView({ apps, selectedAppId, authToken }: MlDataViewProps) 
       </div>
 
       {/* PREVIEW TABLE: FIRST 20 ROWS */}
-      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+      <div className="bg-white border border-slate-200 rounded-md overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-200 bg-slate-50/70 flex flex-wrap items-center justify-between gap-2">
           <div>
             <h3 className="text-sm font-bold text-slate-900">Dataset Preview (First 20 Rows)</h3>
-            <p className="text-[11px] text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 mt-0.5">
               Endpoint: <code className="font-mono text-blue-700">GET /api/v1/export/features.csv</code> (Admin auth required)
             </p>
           </div>
@@ -367,7 +367,7 @@ export function MlDataView({ apps, selectedAppId, authToken }: MlDataViewProps) 
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-[11px]">
+          <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 font-semibold">
                 <th className="py-2.5 px-3 whitespace-nowrap">Win</th>

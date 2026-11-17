@@ -114,11 +114,11 @@ export function RulesView() {
   return (
     <div className="flex flex-col gap-6">
       {/* Top Header */}
-      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded-lg p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-bold text-slate-900 tracking-tight">Threat Detection Rules (13 Rules)</h2>
-            <span className="text-[11px] font-mono font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+            <h2 className="text-lg font-bold text-slate-900 tracking-tight">Threat Detection Rules ({rules.length} Rules)</h2>
+            <span className="text-xs font-mono font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
               rules.json
             </span>
           </div>
@@ -151,7 +151,7 @@ export function RulesView() {
           return (
             <div
               key={rule.id}
-              className={`bg-white border rounded-xl p-5 shadow-xs transition-all flex flex-col justify-between ${
+              className={`bg-white border rounded-lg p-5 transition-all flex flex-col justify-between ${
                 isEnabled ? 'border-slate-200' : 'border-slate-200 bg-slate-50/60 opacity-75'
               }`}
             >
@@ -161,11 +161,11 @@ export function RulesView() {
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-slate-900 text-sm">{rule.name}</span>
-                      <span className={`px-2 py-0.5 rounded border text-[10px] uppercase font-bold tracking-wider ${getSeverityBadge(rule.severity)}`}>
+                      <span className={`px-2 py-0.5 rounded border text-xs uppercase font-bold tracking-wider ${getSeverityBadge(rule.severity)}`}>
                         {rule.severity}
                       </span>
                     </div>
-                    <div className="text-[10px] font-mono text-slate-400 mt-0.5">{rule.id}</div>
+                    <div className="text-xs font-mono text-slate-400 mt-0.5">{rule.id}</div>
                   </div>
 
                   {/* Toggle Switch */}
@@ -182,7 +182,7 @@ export function RulesView() {
                 </div>
 
                 {/* OWASP Tag */}
-                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-50 border border-blue-200 text-[11px] font-medium text-blue-700 mb-3">
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-50 border border-blue-200 text-xs font-medium text-blue-700 mb-3">
                   <Tag className="w-3 h-3" />
                   <span>{rule.owasp_tag}</span>
                 </div>
@@ -223,7 +223,7 @@ export function RulesView() {
                     {hasChanged && (
                       <button
                         onClick={() => handleSaveThreshold(rule.id)}
-                        className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-semibold cursor-pointer shadow-xs"
+                        className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-semibold cursor-pointer"
                         title="Save threshold"
                       >
                         <Save className="w-3.5 h-3.5" />
@@ -233,7 +233,7 @@ export function RulesView() {
                 </div>
 
                 {savedFeedback[rule.id] && (
-                  <div className="w-full text-right text-[11px] font-medium text-emerald-600 animate-in fade-in">
+                  <div className="w-full text-right text-xs font-medium text-emerald-600 animate-in fade-in">
                     ✓ {savedFeedback[rule.id]}
                   </div>
                 )}
